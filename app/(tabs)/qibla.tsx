@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator, Alert, SafeAreaView, Platform, Dimensions, StatusBar, ScrollView } from 'react-native';
-import * as Location from 'expo-location';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import Svg, { Circle, Rect, Line, Path } from 'react-native-svg';
+import * as Location from 'expo-location';
+import { router } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, Alert, Dimensions, Image, Platform, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import Svg, { Circle, Line, Path } from 'react-native-svg';
 
 const { width } = Dimensions.get('window');
 
@@ -29,7 +30,7 @@ export default function QiblaScreen() {
             let loc = await Location.getCurrentPositionAsync({
                 accuracy: Location.Accuracy.Highest
             });
-            
+
             // Reverse geocode
             let geocode = await Location.reverseGeocodeAsync({
                 latitude: loc.coords.latitude,
@@ -70,12 +71,12 @@ export default function QiblaScreen() {
                     // Use true heading relative to geographic North for precise Qibla direction
                     // fallback to magnetic only if trueHeading isn't available (-1 means unavailable)
                     const preciseHeading = headingData.trueHeading >= 0 ? headingData.trueHeading : headingData.magHeading;
-                    setHeading(preciseHeading); 
+                    setHeading(preciseHeading);
                 });
             }
         };
         startHeading();
-        
+
         return () => {
             isMounted = false;
             if (sub) {
@@ -101,10 +102,10 @@ export default function QiblaScreen() {
         const R = 6371; // km
         const dLat = (MECCA_LAT - lat) * Math.PI / 180;
         const dLon = (MECCA_LON - lon) * Math.PI / 180;
-        const a = Math.sin(dLat/2) * Math.sin(dLat/2) + 
-                  Math.cos(lat * Math.PI / 180) * Math.cos(MECCA_LAT * Math.PI / 180) * 
-                  Math.sin(dLon/2) * Math.sin(dLon/2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(lat * Math.PI / 180) * Math.cos(MECCA_LAT * Math.PI / 180) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return R * c;
     };
 
@@ -123,7 +124,7 @@ export default function QiblaScreen() {
 
     const getCompassShort = (deg: number) => {
         const dir = getCompassDirection(deg);
-        return dir.split(' ').map(w => w[0]).join(''); 
+        return dir.split(' ').map(w => w[0]).join('');
     };
 
     const handleCalibrate = () => {
@@ -139,7 +140,7 @@ export default function QiblaScreen() {
                 <View style={styles.container}>
                     {/* Header */}
                     <View style={styles.header}>
-                        <TouchableOpacity style={styles.iconCircleGreen}>
+                        <TouchableOpacity style={styles.iconCircleGreen} onPress={() => { router.back() }}>
                             <Ionicons name="arrow-back" size={24} color="#22C55E" />
                         </TouchableOpacity>
                         <Text style={styles.titleText}>Qibla Finder</Text>
@@ -176,7 +177,7 @@ export default function QiblaScreen() {
                                 <Circle cx="150" cy="150" r="140" stroke="#E5E7EB" strokeWidth="2" fill="none" opacity={0.6} />
                                 <Circle cx="150" cy="150" r="120" stroke="#F3F4F6" strokeWidth="4" fill="#FFFFFF" />
                             </Svg>
-                            
+
                             {/* Compass Letters */}
                             <Text style={[styles.compassText, { top: 15, left: 142 }]}>N</Text>
                             <Text style={[styles.compassText, { bottom: 15, left: 144 }]}>S</Text>
@@ -191,16 +192,23 @@ export default function QiblaScreen() {
                                 <Svg width="300" height="300" viewBox="0 0 300 300">
                                     {/* The green needle line  */}
                                     <Line x1="150" y1="150" x2="150" y2="60" stroke="#22C55E" strokeWidth="5" strokeLinecap="round" />
-                                    
+
                                     {/* Base center circle */}
                                     <Circle cx="150" cy="150" r="6" fill="#EAB308" stroke="#FFFFFF" strokeWidth="2" />
-                                    
+
                                     {/* Decorative Qaba icon at the tip */}
-                                    <Rect x="135" y="30" width="30" height="30" fill="#22C55E" rx="3" />
-                                    <Line x1="135" y1="36" x2="165" y2="36" stroke="#FFFFFF" strokeWidth="1.5" />
-                                    <Line x1="135" y1="46" x2="165" y2="46" stroke="#FFFFFF" strokeWidth="1.5" />
-                                    <Rect x="145" y="42" width="10" height="18" fill="#15803D" />
                                 </Svg>
+                                <Image
+                                    source={require('../../assets/images/qibla-pin.png')}
+                                    style={{
+                                        position: 'absolute',
+                                        top: 36,
+                                        left: 132,
+                                        width: 35,
+                                        height: 35,
+                                        resizeMode: 'contain'
+                                    }}
+                                />
                             </View>
                         </View>
                     </View>

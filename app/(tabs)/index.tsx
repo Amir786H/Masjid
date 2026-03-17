@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router';
 import React from 'react';
 import { ActivityIndicator, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { CommunityHighlight } from '../../components/CommunityHighlight';
@@ -10,6 +11,7 @@ import { useCountdown } from '../../hooks/useCountdown';
 import { usePrayerTimes } from '../../hooks/usePrayerTimes';
 
 export default function HomeScreen() {
+  const router = useRouter();
   const { data, address, loading, error } = usePrayerTimes();
   const { nextPrayerName, countdown } = useCountdown(data?.timings);
 
@@ -37,7 +39,9 @@ export default function HomeScreen() {
         label="Qibla"
         iconFamily="Ionicons"
         iconName="compass-outline"
-        onPress={() => { }}
+        onPress={() => {
+          router.push('/(tabs)/qibla')
+        }}
       />
       <QuickActionButton
         label="Tasbih"
