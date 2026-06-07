@@ -233,7 +233,3 @@ const styles = StyleSheet.create({
   },
 });
 
-
-
-
-//SUPABASE PASS: h0S4PTFPQV9HVYW2
