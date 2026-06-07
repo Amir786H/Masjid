@@ -40,7 +40,8 @@ export default function HomeScreen() {
         iconFamily="Ionicons"
         iconName="compass-outline"
         onPress={() => {
-          router.push('/(tabs)/qibla')
+          // router.push('/(tabs)/qibla')
+          router.push('./(components)/QiblaNew')
         }}
       />
       <QuickActionButton
@@ -117,10 +118,13 @@ export default function HomeScreen() {
       <Text style={[styles.sectionTitle, { marginBottom: 16 }]}>Community Highlight</Text>
       <CommunityHighlight
         imageUrl="https://images.unsplash.com/photo-1572949645841-094f3a9c4c94?q=80&w=600&auto=format&fit=crop"
-        date="Oct 27, 2023"
+        date="Oct 27, 2026"
         title="Friday Khutbah: Youth & Modernity"
         description="Join us this Friday for a special session with Sheikh Ahmed as he discusses navigating modern challenges."
-        onPress={() => { }}
+        onPress={() => {
+
+          // Have to add the logic with the Api data+
+         }}
       />
     </View>
   );
@@ -228,3 +232,8 @@ const styles = StyleSheet.create({
     color: '#EF4444',
   },
 });
+
+
+
+
+//SUPABASE PASS: h0S4PTFPQV9HVYW2
