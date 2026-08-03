@@ -1,46 +1,75 @@
 import { useColorScheme } from '@/components/useColorScheme'
 import { Colors } from '@/constants/Colors'
-import React, { useState } from 'react'
+import { useAuthContext } from '@/contexts/AuthContext'
+import { useRouter } from 'expo-router'
+import React, { useRef, useState } from 'react'
 import {
-    ActivityIndicator,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native'
 
 const SignUpScreen = () => {
+  const router = useRouter()
   const colorScheme = useColorScheme()
   const colors = Colors[colorScheme ?? 'light']
 
+  const { signUp, loading, error } = useAuthContext()
+  const [Name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [localError, setLocalError] = useState('')
+  const submittingRef = useRef(false)
 
-  const handleSignUp = () => {
-    if (!email || !password || !confirmPassword) {
-      alert('Please fill in all fields')
+  const formatSignUpError = (err: any) => {
+    const message = (err?.message || '').toLowerCase()
+
+    if (message.includes('rate limit') || message.includes('too many')) {
+      return 'Too many sign-up requests were sent. Please wait a few minutes before trying again.'
+    }
+
+    if (message.includes('already registered') || message.includes('already exists')) {
+      return 'This email is already registered. Please sign in instead.'
+    }
+
+    return err?.message || 'Failed to sign up. Please try again.'
+  }
+
+  const handleSignUp = async () => {
+    if (submittingRef.current || loading) {
+      return
+    }
+
+    setLocalError('')
+
+    if (!Name.trim() || !email.trim() || !password || !confirmPassword) {
+      setLocalError('Please fill in all fields')
       return
     }
 
     if (password !== confirmPassword) {
-      alert('Passwords do not match')
+      setLocalError('Passwords do not match')
       return
     }
 
-    setLoading(true)
-    // Add your signup logic here
-    setTimeout(() => {
-      setLoading(false)
-      alert('Sign up successful!')
-    }, 2000)
+    submittingRef.current = true
+
+    try {
+      await signUp(email.trim().toLowerCase(), password, Name.trim())
+       // HAVE TO ADD THE EXTRA LOGIC FROM CHAT-GPT.
+      router.replace('/(tabs)')
+    } catch (err: any) {
+      setLocalError(formatSignUpError(err))
+    } finally {
+      submittingRef.current = false
+    }
   }
 
   return (
@@ -63,8 +92,35 @@ const SignUpScreen = () => {
           </Text>
         </View>
 
+        {(localError || error) && (
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorText}>{localError || error}</Text>
+          </View>
+        )}
+
         {/* Form Container */}
         <View style={styles.formContainer}>
+          {/* Full Name Input */}
+          <View style={styles.inputWrapper}>
+            <Text style={[styles.label, { color: colors.text }]}>Full Name</Text>
+            <TextInput
+              style={[
+                styles.input,
+                {
+                  borderColor: colors.border,
+                  backgroundColor: colors.cardBackground,
+                  color: colors.text,
+                },
+              ]}
+              placeholder="Enter your full name"
+              placeholderTextColor={colors.textSecondary}
+              value={Name}
+              onChangeText={setName}
+              editable={!loading}
+              autoCapitalize="words"
+            />
+          </View>
+
           {/* Email Input */}
           <View style={styles.inputWrapper}>
             <Text style={[styles.label, { color: colors.text }]}>Email Address</Text>
@@ -103,7 +159,7 @@ const SignUpScreen = () => {
               placeholderTextColor={colors.textSecondary}
               value={password}
               onChangeText={setPassword}
-              secureTextEntry={!showPassword}
+              secureTextEntry
               editable={!loading}
             />
           </View>
@@ -124,12 +180,11 @@ const SignUpScreen = () => {
               placeholderTextColor={colors.textSecondary}
               value={confirmPassword}
               onChangeText={setConfirmPassword}
-              secureTextEntry={!showConfirmPassword}
+              secureTextEntry
               editable={!loading}
             />
           </View>
 
-          {/* Sign Up Button */}
           <TouchableOpacity
             style={[
               styles.signUpButton,
@@ -139,7 +194,7 @@ const SignUpScreen = () => {
               },
             ]}
             onPress={handleSignUp}
-            disabled={loading}
+            disabled={loading || submittingRef.current}
             activeOpacity={0.8}
           >
             {loading ? (
@@ -154,7 +209,7 @@ const SignUpScreen = () => {
             <Text style={[styles.loginText, { color: colors.textSecondary }]}>
               Already have an account?{' '}
             </Text>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => router.push('/(auth)/sign-in')}>
               <Text
                 style={[
                   styles.loginLink,
@@ -203,6 +258,16 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
+  },
+  errorContainer: {
+    backgroundColor: '#ffe5e5',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 16,
+  },
+  errorText: {
+    color: '#b81c1c',
+    fontSize: 14,
   },
   input: {
     borderWidth: 1.5,

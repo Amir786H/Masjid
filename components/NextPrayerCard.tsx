@@ -96,8 +96,8 @@ const styles = StyleSheet.create({
     },
     mosqueIllustration: {
         position: 'absolute',
-        bottom: -10,
-        right: -10,
+        bottom: 0,
+        right: -4,
         opacity: 0.4,
     },
 });

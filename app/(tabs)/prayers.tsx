@@ -2,6 +2,10 @@ import { StyleSheet, Text, View } from 'react-native';
 import { Colors } from '../../constants/Colors';
 
 export default function PrayersScreen() {
+
+    // Quran data
+    // https://cdn.jsdelivr.net/gh/fawazahmed0/quran-api@1/editions.json
+    
     return (
         <View style={styles.container}>
             <Text style={styles.text}>Prayers Screen Placeholder</Text>

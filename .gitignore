@@ -11,6 +11,7 @@ expo-env.d.ts
 
 # database
 database/
+supabase/
 
 # Native
 .kotlin/
@@ -43,3 +44,14 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# fcm generated files
+google-services.json
+masjidapp-fdf7d-firebase-adminsdk-fbsvc-c85d8528fe.json
+
+# other
+IMPLEMENTATION_CHECKLIST.md
+IMPLEMENTATION_OVERVIEW.md
+SUPABASE_README.md
+SUPABASE_SETUP.md
+QUICK_REFERENCE.md

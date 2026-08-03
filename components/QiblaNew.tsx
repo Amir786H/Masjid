@@ -1,8 +1,9 @@
-import { CameraView, useCameraPermissions } from 'expo-camera';
-import * as Location from 'expo-location';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import React, { useEffect, useState, useRef } from 'react';
-import { ActivityIndicator, Alert, Dimensions, StyleSheet, Text, TouchableOpacity, View, Vibration, Platform, SafeAreaView } from 'react-native';
+import { CameraView, useCameraPermissions } from 'expo-camera';
+import { useIsFocused } from 'expo-router';
+import * as Location from 'expo-location';
+import React, { useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, Alert, Dimensions, Platform, SafeAreaView, StyleSheet, Text, TouchableOpacity, Vibration, View } from 'react-native';
 import Svg, { Circle, Line, Polygon } from 'react-native-svg';
 
 const { width, height } = Dimensions.get('window');
@@ -11,6 +12,7 @@ const MECCA_LAT = 21.422487;
 const MECCA_LON = 39.826206;
 
 export default function QiblaNew() {
+    const isFocused = useIsFocused();
     const [cameraPermission, requestCameraPermission] = useCameraPermissions();
     const [locationPermission, setLocationPermission] = useState<Location.PermissionStatus | null>(null);
     
@@ -24,6 +26,7 @@ export default function QiblaNew() {
     
     // For vibration throttle so it doesn't vibrate constantly
     const lastVibration = useRef(0);
+    const headingSubscriptionRef = useRef<Location.LocationSubscription | null>(null);
 
     const checkPermissionsAndLocation = async () => {
         setLoading(true);
@@ -68,28 +71,60 @@ export default function QiblaNew() {
     };
 
     useEffect(() => {
+        if (!isFocused) {
+            if (headingSubscriptionRef.current) {
+                headingSubscriptionRef.current.remove();
+                headingSubscriptionRef.current = null;
+            }
+            Vibration.cancel();
+            return;
+        }
+
         checkPermissionsAndLocation();
 
-        let sub: Location.LocationSubscription | undefined;
         let isMounted = true;
 
         const startHeading = async () => {
-            let { status } = await Location.requestForegroundPermissionsAsync();
-            if (status === 'granted') {
-                sub = await Location.watchHeadingAsync((headingData) => {
-                    if (!isMounted) return;
+            try {
+                const { status } = await Location.requestForegroundPermissionsAsync();
+
+                if (!isMounted || !isFocused || status !== 'granted') {
+                    return;
+                }
+
+                if (headingSubscriptionRef.current) {
+                    headingSubscriptionRef.current.remove();
+                    headingSubscriptionRef.current = null;
+                }
+
+                const subscription = await Location.watchHeadingAsync((headingData) => {
+                    if (!isMounted || !isFocused) return;
                     const h = headingData.trueHeading >= 0 ? headingData.trueHeading : headingData.magHeading;
                     setHeading(h);
                 });
+
+                if (!isMounted || !isFocused) {
+                    subscription.remove();
+                    return;
+                }
+
+                headingSubscriptionRef.current = subscription;
+            } catch (error) {
+                console.warn('Failed to start heading listener:', error);
             }
         };
+
         startHeading();
 
         return () => {
             isMounted = false;
-            if (sub) sub.remove();
+            if (headingSubscriptionRef.current) {
+                headingSubscriptionRef.current.remove();
+                headingSubscriptionRef.current = null;
+            }
+            Vibration.cancel();
         };
-    }, []);
+    }, [isFocused]);
 
     // Vibrate when aligned
     useEffect(() => {
@@ -106,6 +141,7 @@ export default function QiblaNew() {
                 }
             }
         }
+        Vibration.cancel(); // Stop vibration when not aligned
     }, [heading, qiblaDirection]);
 
     const calculateQibla = (lat: number, lon: number) => {

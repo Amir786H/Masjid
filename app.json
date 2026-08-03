@@ -17,13 +17,12 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "backgroundColor": "#0D5C4A",
+        "foregroundImage": "./assets/images/icon.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.amir786.MasjidApp"
+      "package": "com.amir786.MasjidApp",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "bundler": "metro",
@@ -37,6 +36,15 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "EXPO_PUBLIC_SUPABASE_URL": "https://jfmwsnwzuxfqfxjchuui.supabase.co",
+      "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpmbXdzbnd6dXhmcWZ4amNodXVpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2NjUzNTgsImV4cCI6MjA5NjI0MTM1OH0.ho-r-i6IIqFwipK3IdTnZVwKuvFnXXgqgNw7L9_2qXA",
+      "EXPO_PUBLIC_EAS_PROJECT_ID": "jfmwsnwzuxfqfxjchuui",
+      "router": {},
+      "eas": {
+        "projectId": "3c29dcea-a89b-46d4-a039-b08505450316"
+      }
     }
   }
 }

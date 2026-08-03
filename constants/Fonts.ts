@@ -1,9 +1,11 @@
-
 export const Fonts = {
-    regular: 'Inter_400Regular',
-    medium: 'Inter_500Medium',
-    semiBold: 'Inter_600SemiBold',
-    bold: 'Inter_700Bold',
+  regular: 'Inter_400Regular',
+  medium: 'Inter_500Medium',
+  semiBold: 'Inter_600SemiBold',
+  bold: 'Inter_700Bold',
+  serif: 'PlayfairDisplay_700Bold',
+  serifRegular: 'PlayfairDisplay_400Regular',
+  arabic: 'Amiri_700Bold',
 };
 
 // Fallback logic could be handled if we use system fonts
