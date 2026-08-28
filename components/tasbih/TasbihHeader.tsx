@@ -3,7 +3,6 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { TasbihTheme } from '../../constants/TasbihTheme';
 import { useTasbihLayout } from '../../hooks/useTasbihLayout';
-import { IconCircleButton } from './IconCircleButton';
 import { MosqueSilhouette } from './TasbihSvgAssets';
 
 interface TasbihHeaderProps {
@@ -27,10 +26,11 @@ export const TasbihHeader: React.FC<TasbihHeaderProps> = ({
         <MosqueSilhouette width={width} height={rs(110)} />
       </View>
 
-      <View style={styles.topRow}>
+      {/* This will be working in future releases. */}
+      {/* <View style={styles.topRow}>
         <IconCircleButton iconName="menu" onPress={onMenuPress} size={rs(40)} />
         <IconCircleButton iconName="bar-chart-outline" onPress={onStatsPress} size={rs(40)} />
-      </View>
+      </View> */}
 
       <View style={styles.titleBlock}>
         <Text style={[styles.title, { fontSize: rs(28) }]}>{title}</Text>

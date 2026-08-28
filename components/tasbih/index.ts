@@ -9,11 +9,13 @@ export { ProgressBar } from './ProgressBar';
 export { SectionHeader } from './SectionHeader';
 export { SurahListItem } from './SurahListItem';
 export { SurahListSection } from './SurahListSection';
+export { SurahPickerModal } from './SurahPickerModal';
 export { TasbihHeader } from './TasbihHeader';
 export { TasbihProgressCard } from './TasbihProgressCard';
 export {
   IslamicStarBadge,
   LanternIllustration,
   MosqueSilhouette,
-  TargetIcon,
+  TargetIcon
 } from './TasbihSvgAssets';
+

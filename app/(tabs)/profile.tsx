@@ -15,6 +15,7 @@ import {
     View,
 } from 'react-native';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { useTabBarScroll } from '../../hooks/useTabBarVisibility';
 import { updateUserProfile } from '../../services/databaseService';
 import { useAppStore } from '../../stores/appStore';
 
@@ -26,6 +27,7 @@ export default function ProfileScreen() {
     const [loading, setLoading] = useState(false);
     const [signOutLoading, setSignOutLoading] = useState(false);
     const router = useRouter();
+    const onScroll = useTabBarScroll();
 
     useEffect(() => {
         if (user) {
@@ -86,7 +88,7 @@ export default function ProfileScreen() {
     }
 
     return (
-        <ScrollView style={styles.container}>
+        <ScrollView style={styles.container} onScroll={onScroll} scrollEventThrottle={16}>
             <View style={styles.header}>
                 {profile.avatar_url ? (
                     <Image source={{ uri: profile.avatar_url }} style={styles.avatar} />
@@ -166,6 +168,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#f5f5f5',
+        margin: 10,
     },
     centerContainer: {
         flex: 1,

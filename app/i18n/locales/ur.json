@@ -1,0 +1,40 @@
+{
+  "common": {
+    "save": "محفوظ کریں",
+    "cancel": "منسوخ کریں",
+    "delete": "حذف کریں",
+    "edit": "ترمیم کریں",
+    "search": "تلاش کریں",
+    "loading": "لوڈ ہو رہا ہے",
+    "retry": "دوبارہ کوشش کریں",
+    "Your_Tasbih_Progress": "آپ کا تسبیح پیش رفت",
+    "No_community_highlights_available_yet": "ابھی تک کوئی کمیونٹی ہائی لائٹس دستیاب نہیں ہیں",
+    "Community_Highlights": "کمیونٹی ہائی لائٹس",
+    "Prayer_Times": "نماز کے اوقات",
+    "View_Monthly": "ماہانہ دیکھیں",
+    "Loading_Namaz_Times": "نماز کے اوقات لوڈ ہو رہے ہیں..."
+  },
+  "home": {
+    "title": "خوش آمدید",
+    "subtitle": "ہماری ایپ میں خوش آمدید",
+    "profile": "پروفائل",
+    "settings": "ترتیبات",
+    "Masjid_E_Hashimpur": "مسجد ای ہاشم پور",
+    "Masjid_Hashimpur": "مسجد ہاشم پور"
+  },
+  "namaz": {
+    "Fajr": "فجر",
+    "Sunrise": "طلوع آفتاب",
+    "Dhuhr": "ظہر",
+    "Asr": "عصر",
+    "Maghrib": "مغرب",
+    "Isha": "عشاء"
+  },
+  "auth": {
+    "login": "لاگ ان",
+    "logout": "لاگ آؤٹ",
+    "email": "ای میل",
+    "password": "پاس ورڈ",
+    "loginButton": "لاگ ان کریں"
+  }
+}

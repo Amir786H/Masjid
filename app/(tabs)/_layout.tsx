@@ -5,8 +5,8 @@ import { Platform, Pressable, StyleSheet, useWindowDimensions, View } from 'reac
 import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import { useColorScheme } from '../../components/useColorScheme';
 import { Colors } from '../../constants/Colors';
-import { TasbihTheme } from '../../constants/TasbihTheme';
 import { Icons } from '../../constants/Icons';
+import { TabBarVisibilityProvider, useTabBarVisibility } from '../../hooks/useTabBarVisibility';
 
 function AnimatedTabButton(props: any) {
   const { children, style, accessibilityState, onPress, compact } = props;
@@ -51,56 +51,64 @@ function AnimatedTabButton(props: any) {
   );
 }
 
-function TasbihTabIcon({ focused }: { focused: boolean }) {
-  const { width } = useWindowDimensions();
-  const isCompact = width < 390;
-  const size = isCompact ? 52 : 56;
+// function TasbihTabIcon({ focused }: { focused: boolean }) {
+//   const { width } = useWindowDimensions();
+//   const isCompact = width < 390;
+//   const size = isCompact ? 52 : 56;
 
+//   return (
+//     <View style={[tasbihIconStyles.wrap, { width: size, height: size, borderRadius: size / 2 }]}>
+//       <LinearGradient
+//         colors={[TasbihTheme.colors.cardGreen, TasbihTheme.colors.primaryGreen]}
+//         style={[tasbihIconStyles.gradient, { borderRadius: size / 2 }]}>
+//         <Icons.MaterialCommunityIcons
+//           name="circle-multiple"
+//           size={isCompact ? 24 : 26}
+//           color={TasbihTheme.colors.white}
+//         />
+//       </LinearGradient>
+//       {focused && <View style={tasbihIconStyles.dot} />}
+//     </View>
+//   );
+// }
+
+// const tasbihIconStyles = StyleSheet.create({
+//   wrap: {
+//     marginTop: -18,
+//     alignItems: 'center',
+//     justifyContent: 'center',
+//   },
+//   gradient: {
+//     width: '100%',
+//     height: '100%',
+//     alignItems: 'center',
+//     justifyContent: 'center',
+//     borderWidth: 3,
+//     borderColor: TasbihTheme.colors.background,
+//     shadowColor: TasbihTheme.colors.primaryGreen,
+//     shadowOffset: { width: 0, height: 6 },
+//     shadowOpacity: 0.28,
+//     shadowRadius: 10,
+//     elevation: 10,
+//   },
+//   dot: {
+//     width: 5,
+//     height: 5,
+//     borderRadius: 3,
+//     backgroundColor: TasbihTheme.colors.primaryGreen,
+//     marginTop: 4,
+//   },
+// });
+
+export default function TabLayout() {
   return (
-    <View style={[tasbihIconStyles.wrap, { width: size, height: size, borderRadius: size / 2 }]}>
-      <LinearGradient
-        colors={[TasbihTheme.colors.cardGreen, TasbihTheme.colors.primaryGreen]}
-        style={[tasbihIconStyles.gradient, { borderRadius: size / 2 }]}>
-        <Icons.MaterialCommunityIcons
-          name="circle-multiple"
-          size={isCompact ? 24 : 26}
-          color={TasbihTheme.colors.white}
-        />
-      </LinearGradient>
-      {focused && <View style={tasbihIconStyles.dot} />}
-    </View>
+    <TabBarVisibilityProvider>
+      <TabLayoutContent />
+    </TabBarVisibilityProvider>
   );
 }
 
-const tasbihIconStyles = StyleSheet.create({
-  wrap: {
-    marginTop: -18,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  gradient: {
-    width: '100%',
-    height: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 3,
-    borderColor: TasbihTheme.colors.background,
-    shadowColor: TasbihTheme.colors.primaryGreen,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.28,
-    shadowRadius: 10,
-    elevation: 10,
-  },
-  dot: {
-    width: 5,
-    height: 5,
-    borderRadius: 3,
-    backgroundColor: TasbihTheme.colors.primaryGreen,
-    marginTop: 4,
-  },
-});
-
-export default function TabLayout() {
+function TabLayoutContent() {
   const scheme = useColorScheme();
   const palette = Colors[scheme === 'dark' ? 'dark' : 'light'];
   const { width } = useWindowDimensions();
@@ -111,6 +119,12 @@ export default function TabLayout() {
   const bottomInset = Platform.OS === 'ios' ? (isCompact ? 10 : 14) : 12;
   const glassBorder = scheme === 'dark' ? 'rgba(255,255,255,0.13)' : 'rgba(255, 255, 255, 0.72)';
   const glassShadow = scheme === 'dark' ? 0.26 : 0.16;
+  const visible = useTabBarVisibility();
+
+  const tabBarVisibilityStyle = {
+    opacity: visible ? 1 : 0,
+    transform: [{ translateY: visible ? 0 : 120 }],
+  };
 
   return (
     <Tabs
@@ -143,34 +157,46 @@ export default function TabLayout() {
             />
           </View>
         ),
-        tabBarStyle: {
-          position: 'absolute',
-          left: horizontalInset,
-          right: horizontalInset,
-          bottom: bottomInset,
-          height: tabBarHeight,
-          borderRadius: 30,
-          borderTopWidth: 0,
-          backgroundColor: 'transparent',
-          borderWidth: StyleSheet.hairlineWidth,
-          borderColor: glassBorder,
-          overflow: 'hidden',
-          elevation: 14,
-          shadowColor: palette.primary,
-          shadowOffset: { width: 0, height: 12 },
-          shadowOpacity: glassShadow,
-          shadowRadius: 22,
-          paddingTop: isCompact ? 5 : 6,
-          paddingBottom: isCompact ? 3 : 4,
-          paddingHorizontal: isCompact ? 4 : 6,
-        },
+        tabBarStyle: [
+          {
+            position: 'absolute',
+            left: horizontalInset,
+            right: horizontalInset,
+            bottom: bottomInset,
+            height: tabBarHeight,
+            borderRadius: 30,
+            borderTopWidth: 0,
+            backgroundColor: 'transparent',
+            borderWidth: StyleSheet.hairlineWidth,
+            borderColor: glassBorder,
+            overflow: 'hidden',
+            elevation: 14,
+            shadowColor: palette.primary,
+            shadowOffset: { width: 0, height: 12 },
+            shadowOpacity: glassShadow,
+            shadowRadius: 22,
+            paddingTop: isCompact ? 5 : 6,
+            paddingBottom: isCompact ? 3 : 4,
+            paddingHorizontal: isCompact ? 6 : 8,
+            justifyContent: 'center',
+            alignItems: 'stretch',
+          },
+          tabBarVisibilityStyle,
+        ],
         tabBarItemStyle: {
+          flex: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+          minWidth: 0,
           borderRadius: 20,
-          marginHorizontal: isCompact ? 0 : 2,
-          paddingVertical: 2,
+          marginHorizontal: isCompact ? 3 : 5,
+          paddingVertical: 0,
+          paddingHorizontal: 0,
         },
         tabBarIconStyle: {
-          marginBottom: isCompact ? 1 : 2,
+          marginTop: 0,
+          marginBottom: 2,
+          alignSelf: 'center',
         },
         tabBarLabelStyle: {
           fontSize: isCompact ? 9 : 10,
@@ -178,6 +204,9 @@ export default function TabLayout() {
           letterSpacing: 0.4,
           textTransform: 'uppercase',
           width: isCompact ? 50 : 60,
+          textAlign: 'center',
+          alignSelf: 'center',
+          marginTop: 2,
         },
       }}>
       <Tabs.Screen
@@ -207,25 +236,7 @@ export default function TabLayout() {
           ),
         }}
       />
-      <Tabs.Screen
-        name="tasbih"
-        options={{
-          title: 'TASBIH',
-          tabBarIcon: ({ focused }) => <TasbihTabIcon focused={focused} />,
-          tabBarLabelStyle: {
-            marginTop: -2,
-          },
-        }}
-      />
-      <Tabs.Screen
-        name="donation"
-        options={{
-          title: 'DONATION',
-          tabBarIcon: ({ color, focused }) => (
-            <Icons.MaterialIcons name="volunteer-activism" size={focused ? 24 : 22} color={color} />
-          ),
-        }}
-      />
+
       <Tabs.Screen
         name="qibla"
         options={{
@@ -235,6 +246,16 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="tasbih"
+        options={{
+          title: 'TASBIH',
+          tabBarIcon: ({ color, focused }) => (
+            <Icons.MaterialCommunityIcons name="brightness-3" size={focused ? 24 : 22} color={color} />
+          ),
+        }}
+      />
+
       <Tabs.Screen
         name="profile"
         options={{
@@ -253,17 +274,20 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    minWidth: 0,
+    maxWidth: 96,
   },
   tabChip: {
+    width: '100%',
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 2,
     borderRadius: 18,
     minHeight: 54,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
+    paddingHorizontal: 2,
+    paddingVertical: 2,
     borderWidth: StyleSheet.hairlineWidth,
-    // borderWidth: 2,
     overflow: 'hidden',
   },
   tabChipCompact: {

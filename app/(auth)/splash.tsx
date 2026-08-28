@@ -68,7 +68,7 @@ export default function SplashScreen() {
       if (session) {
         router.replace('/(tabs)');
       } else {
-        router.replace('/sign-in');
+        router.replace('/(auth)/sign-in');
       }
     }, 2500);
 
@@ -206,7 +206,7 @@ export default function SplashScreen() {
         </View>
 
         <View style={styles.copyBlock}>
-          <Text style={styles.appName}>{masjids[0]?.name || 'Masjid E Mena Shah'}</Text>
+          <Text style={styles.appName}>{masjids[0]?.name || 'Masjid Hashimpur'}</Text>
           <Text style={styles.tagline}>Namaz times, community, and qibla in one peaceful place.</Text>
         </View>
       </Animated.View>

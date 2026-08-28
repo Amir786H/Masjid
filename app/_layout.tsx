@@ -14,6 +14,9 @@ import 'react-native-reanimated';
 import { useColorScheme } from '@/components/useColorScheme';
 import { AuthProvider, useAuthContext } from '@/contexts/AuthContext';
 import { registerForPushNotifications, subscribeToNotificationResponses } from '@/services/notificationService';
+import AuthSplashRoute from './(auth)/splash';
+
+import '../app/i18n';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -45,33 +48,43 @@ export default function RootLayout() {
     if (error) throw error;
   }, [error]);
 
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
-
   if (!loaded) {
     return null;
   }
 
-  return <RootLayoutNav />;
+  return <RootLayoutNav loaded={loaded} />;
 }
 
-function RootLayoutNav() {
+function RootLayoutNav({ loaded }: { loaded: boolean }) {
   const colorScheme = useColorScheme();
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <AuthProvider>
-        <RootNavigator />
+        <AuthBootstrap loaded={loaded} />
       </AuthProvider>
     </ThemeProvider>
   );
 }
 
-function RootNavigator() {
-  const { session, loading } = useAuthContext();
+function AuthBootstrap({ loaded }: { loaded: boolean }) {
+  const { loading, session } = useAuthContext();
+
+  useEffect(() => {
+    if (loaded && !loading) {
+      SplashScreen.hideAsync().catch(() => undefined);
+    }
+  }, [loaded, loading]);
+
+  if (!loaded || loading) {
+    return <AuthSplashRoute />;
+  }
+
+  return <RootNavigator session={session} />;
+}
+
+function RootNavigator({ session }: { session: { user?: { id?: string } | null } | null }) {
+  const { loading } = useAuthContext();
   const router = useRouter();
   const initialRouteName = loading ? '(auth)' : session ? '(tabs)' : '(auth)';
 
@@ -84,6 +97,16 @@ function RootNavigator() {
       console.warn('Push notification registration failed', error);
     });
   }, [session?.user?.id]);
+
+  useEffect(() => {
+    if (loading) {
+      return;
+    }
+
+    if (!session?.user?.id) {
+      router.replace('/(auth)/sign-in');
+    }
+  }, [loading, router, session?.user?.id]);
 
   useEffect(() => {
     return subscribeToNotificationResponses((url) => {

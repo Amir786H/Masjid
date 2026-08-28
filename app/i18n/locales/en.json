@@ -1,0 +1,40 @@
+{
+    "common": {
+        "save": "Save",
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "edit": "Edit",
+        "search": "Search",
+        "loading": "Loading",
+        "retry": "Retry",
+        "Your_Tasbih_Progress": "Your Tasbih Progress",
+        "No_community_highlights_available_yet": "No community highlights available yet",
+        "Community_Highlights": "Community Highlights",
+        "Prayer_Times": "Prayer Times",
+        "View_Monthly": "View Monthly",
+        "Loading_Namaz_Times": "Loading Namaz Times..." 
+    },
+    "home": {
+        "title": "Welcome",
+        "subtitle": "Welcome to our app",
+        "profile": "Profile",
+        "settings": "Settings",
+        "Masjid_E_Hashimpur": "Masjid Hashimpur",
+        "Masjid_Hashimpur": "Masjid Hashimpur"
+    },
+    "namaz": {
+        "Fajr": "Fajr",
+        "Sunrise": "Sunrise",
+        "Dhuhr": "Dhuhr",
+        "Asr": "Asr",
+        "Maghrib": "Maghrib",
+        "Isha": "Isha"
+    },
+    "auth": {
+        "login": "Login",
+        "logout": "Logout",
+        "email": "Email",
+        "password": "Password",
+        "loginButton": "Login"
+    }
+}

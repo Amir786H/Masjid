@@ -1,7 +1,8 @@
 import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Animated, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Animated, Modal, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { CommunityHighlight } from '../../components/CommunityHighlight';
+import Hadith from '../../components/Hadith';
 import { NextPrayerCard } from '../../components/NextPrayerCard';
 import { PrayerCard } from '../../components/PrayerCard';
 import { QuickActionButton } from '../../components/QuickActionButton';
@@ -10,9 +11,13 @@ import { Icons } from '../../constants/Icons';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useCountdown } from '../../hooks/useCountdown';
 import { usePrayerTimes } from '../../hooks/usePrayerTimes';
+import { useTabBarScroll } from '../../hooks/useTabBarVisibility';
 import { fetchCustomPrayerTimesForMasjid } from '../../services/databaseService';
 import type { PrayerTimings } from '../../services/prayerService';
 import { useAppStore } from '../../stores/appStore';
+
+import { useTranslation } from 'react-i18next'; // Import the useTranslation hook
+import i18n from '../i18n';
 
 const toIsoDate = (date?: string) => {
   if (!date) {
@@ -38,6 +43,7 @@ export default function HomeScreen() {
     loadCommunityPosts,
   } = useAppStore();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [showHadith, setShowHadith] = useState(false);
   const drawerTranslateX = useRef(new Animated.Value(-280)).current;
   const sectionAnimations = useRef(
     Array.from({ length: 5 }, () => new Animated.Value(0))
@@ -46,6 +52,8 @@ export default function HomeScreen() {
   const prayerDay = toIsoDate(data?.date?.gregorian?.date);
   const timings = customPrayerTimings || data?.timings;
   const { nextPrayerName, countdown } = useCountdown(timings);
+  const onScroll = useTabBarScroll();
+  const { t } = useTranslation();
 
   // console.log('HomeScreen----', data?.meta?.latitude, data?.meta?.longitude);
 
@@ -135,11 +143,12 @@ export default function HomeScreen() {
         <Icons.Ionicons name="menu" size={22} color={Colors.light.text} />
       </TouchableOpacity>
       <View style={styles.headerTextContainer}>
-        <Text style={styles.mosqueName}>{masjids[0]?.name || 'Masjid E Meena Shah'}</Text>
+        {/* <Text style={styles.mosqueName}>{masjids[0]?.name || 'Masjid E Meena Shah'}</Text> */}
+        <Text style={styles.mosqueName}>{t('home.Masjid_E_Hashimpur') || t('home.Masjid_Hashimpur')}</Text>
         <View style={{ padding: 5 }} />
         <Text numberOfLines={2} style={styles.location}>{masjids[0]?.address || address}</Text>
       </View>
-      <TouchableOpacity style={styles.bellButton}>
+      <TouchableOpacity style={styles.bellButton} onPress={() => i18n.changeLanguage('en')}>
         <Icons.Ionicons name="notifications" size={20} color={Colors.light.text} />
       </TouchableOpacity>
     </View>
@@ -150,7 +159,7 @@ export default function HomeScreen() {
       {isDrawerOpen ? (
         <TouchableOpacity style={styles.drawerOverlay} activeOpacity={1} onPress={() => toggleDrawer(false)} />
       ) : null}
-      <Animated.View style={[styles.drawerContainer, { transform: [{ translateX: drawerTranslateX }] }]}> 
+      <Animated.View style={[styles.drawerContainer, { transform: [{ translateX: drawerTranslateX }] }]}>
         <View style={styles.drawerHeader}>
           <Text style={styles.drawerTitle}>Menu</Text>
           <TouchableOpacity onPress={() => toggleDrawer(false)} style={styles.drawerCloseButton}>
@@ -180,7 +189,9 @@ export default function HomeScreen() {
         label="Events"
         iconFamily="Ionicons"
         iconName="calendar-outline"
-        onPress={() => { }}
+        onPress={() => {
+          router.push('/(tabs)/community')
+        }}
       />
       <QuickActionButton
         label="Qibla"
@@ -194,13 +205,16 @@ export default function HomeScreen() {
         label="Tasbih"
         iconFamily="Ionicons"
         iconName="medical-outline"
-        onPress={() => { }}
+        onPress={() => { router.push('/(tabs)/tasbih') }}
       />
       <QuickActionButton
-        label="Quran"
+        label="Hadith"
         iconFamily="Ionicons"
         iconName="book-outline"
-        onPress={() => { }}
+        onPress={() => {
+          //Have to integrate a Hadith API or local database to fetch Hadiths.
+          setShowHadith(true);
+        }}
       />
     </View>
   );
@@ -210,7 +224,7 @@ export default function HomeScreen() {
       return (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={Colors.light.primary} />
-          <Text style={styles.loadingText}>Loading Namaz Times...</Text>
+          <Text style={styles.loadingText}>{t('common.Loading_Namaz_Times')}</Text>
         </View>
       );
     }
@@ -237,23 +251,23 @@ export default function HomeScreen() {
     return (
       <View style={styles.prayerTimesContainer}>
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Prayer Times</Text>
+          <Text style={styles.sectionTitle}>{t('common.Prayer_Times')}</Text>
           <TouchableOpacity>
-            <Text style={styles.viewMonthlyBtn}>View Monthly</Text>
+            <Text style={styles.viewMonthlyBtn}>{t('common.View_Monthly')}</Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.prayerGridRow}>
-          <PrayerCard name="Fajr" time={prayers[0].time} isActive={nextPrayerName === 'Fajr'} />
-          <PrayerCard name="Sunrise" time={prayers[1].time} isActive={nextPrayerName === 'Sunrise'} iconName="sunny-outline" />
+          <PrayerCard name={t('namaz.Fajr')} time={prayers[0].time} isActive={nextPrayerName === t('namaz.Fajr')} />
+          <PrayerCard name={t('namaz.Sunrise')} time={prayers[1].time} isActive={nextPrayerName === t('namaz.Sunrise')} iconName="sunny-outline" />
         </View>
         <View style={styles.prayerGridRow}>
-          <PrayerCard name="Dhuhr" time={prayers[2].time} isActive={nextPrayerName === 'Dhuhr'} />
-          <PrayerCard name="Asr" time={prayers[3].time} isActive={nextPrayerName === 'Asr'} />
+          <PrayerCard name={t('namaz.Dhuhr')} time={prayers[2].time} isActive={nextPrayerName === t('namaz.Dhuhr')} />
+          <PrayerCard name={t('namaz.Asr')} time={prayers[3].time} isActive={nextPrayerName === t('namaz.Asr')} />
         </View>
         <View style={styles.prayerGridRow}>
-          <PrayerCard name="Maghrib" time={prayers[4].time} isActive={nextPrayerName === 'Maghrib'} />
-          <PrayerCard name="Isha" time={prayers[5].time} isActive={nextPrayerName === 'Isha'} />
+          <PrayerCard name={t('namaz.Maghrib')} time={prayers[4].time} isActive={nextPrayerName === t('namaz.Maghrib')} />
+          <PrayerCard name={t('namaz.Isha')} time={prayers[5].time} isActive={nextPrayerName === t('namaz.Isha')} />
         </View>
       </View>
     );
@@ -263,14 +277,14 @@ export default function HomeScreen() {
 
   const renderCommunitySection = () => (
     <View style={styles.communityContainer}>
-      <Text style={[styles.sectionTitle, { marginBottom: 16 }]}>Community Highlight</Text>
+      <Text style={[styles.sectionTitle, { marginBottom: 16 }]}>{t('common.Community_Highlights')}</Text>
       {loadingCommunity ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="small" color={Colors.light.primary} />
         </View>
       ) : featuredPost ? (
         <CommunityHighlight
-          imageUrl={featuredPost.image_url || 'https://images.unsplash.com/photo-1572949645841-094f3a9c4c94?q=80&w=600&auto=format&fit=crop'}
+          imageUrl={featuredPost.image_url || 'https://images.unsplash.com/photo-1589827577276-65d717348780?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'}
           date={new Date(featuredPost.created_at).toLocaleDateString('en-US', {
             month: 'short',
             day: 'numeric',
@@ -284,7 +298,7 @@ export default function HomeScreen() {
         />
       ) : (
         <View style={styles.emptyCommunityContainer}>
-          <Text style={styles.emptyCommunityText}>No community highlights available yet.</Text>
+          <Text style={styles.emptyCommunityText}>{t('common.No_community_highlights_available_yet')}</Text>
         </View>
       )}
     </View>
@@ -293,7 +307,19 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       {renderDrawer()}
-      <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+      <Modal visible={showHadith} animationType="slide" onRequestClose={() => setShowHadith(false)}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: Colors.light.background }}>
+          <View style={{ height: 56, paddingHorizontal: 16, marginVertical: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 1, borderBottomColor: '#E5E7EB' }}>
+            <TouchableOpacity onPress={() => setShowHadith(false)} style={{ padding: 8 }}>
+              <Text style={{ color: Colors.light.primary, fontWeight: '600' }}>Close</Text>
+            </TouchableOpacity>
+            <Text style={{ fontSize: 18, fontWeight: '700', color: Colors.light.text }}>Hadith</Text>
+            <View style={{ width: 48 }} />
+          </View>
+          <Hadith />
+        </SafeAreaView>
+      </Modal>
+      <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false} onScroll={onScroll} scrollEventThrottle={16}>
         <Animated.View style={getSectionTransition(0)}>
           {renderHeader()}
         </Animated.View>
@@ -335,6 +361,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 8,
+    marginTop: 10,
   },
   mosqueName: {
     fontSize: 24,
@@ -392,7 +419,7 @@ const styles = StyleSheet.create({
   },
   drawerContainer: {
     position: 'absolute',
-    top: 0,
+    top: 10,
     left: 0,
     bottom: 0,
     width: 280,

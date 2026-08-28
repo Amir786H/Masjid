@@ -1,12 +1,12 @@
 import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { TasbihTheme } from '../../constants/TasbihTheme';
-import type { SurahTask } from '../../types/tasbih';
 import { getProgressPercent, isTaskComplete, useTasbihLayout } from '../../hooks/useTasbihLayout';
+import type { SurahTask } from '../../types/tasbih';
 import { CircularProgressRing } from './CircularProgressRing';
 import { ProgressBar } from './ProgressBar';
-import { IslamicStarBadge } from './TasbihSvgAssets';
+// Replaced IslamicStarBadge with numeric icon image
 import { Icons } from '../../constants/Icons';
 
 interface SurahListItemProps {
@@ -19,10 +19,10 @@ export const SurahListItem: React.FC<SurahListItemProps> = ({ task, onPress, isA
   const { rs, isCompact } = useTasbihLayout();
   const percent = getProgressPercent(task.current, task.target);
   const complete = isTaskComplete(task.current, task.target);
-  const starSize = rs(34);
+  const starSize = rs(isCompact ? 50 : 45);
 
   return (
-    <Pressable
+      <Pressable
       onPress={() => onPress?.(task)}
       style={({ pressed }) => [
         styles.row,
@@ -31,13 +31,16 @@ export const SurahListItem: React.FC<SurahListItemProps> = ({ task, onPress, isA
           opacity: pressed ? 0.85 : 1,
           backgroundColor: isActive ? `${TasbihTheme.colors.gold}12` : 'transparent',
           borderRadius: rs(12),
-          paddingHorizontal: rs(4),
+          paddingHorizontal: rs(8),
         },
       ]}>
       <View style={[styles.surahCol, { flex: isCompact ? 2.2 : 2 }]}>
-        <View style={styles.starWrap}>
-          <IslamicStarBadge label={String(task.number).padStart(2, '0')} size={starSize} />
-          <Text style={[styles.starLabel, { fontSize: rs(10), top: starSize * 0.34 }]}>
+        <View style={[styles.starWrap, { width: starSize, height: starSize }]}>
+          <Image
+            source={require('../../assets/images/numeric_icon.png')}
+            style={[styles.numericIcon, { width: starSize, height: starSize, borderRadius: rs(8) }]}
+          />
+          <Text style={[styles.starLabel, { fontSize: rs(10), top: starSize * 0.34 }]}> 
             {String(task.number).padStart(2, '0')}
           </Text>
         </View>
@@ -58,7 +61,7 @@ export const SurahListItem: React.FC<SurahListItemProps> = ({ task, onPress, isA
         </View>
       )}
 
-      <View style={[styles.progressCol, { flex: isCompact ? 1.5 : 1.4 }]}>
+      <View style={[styles.progressCol, { flex: isCompact ? 1.5 : 1 }]}>
         <Text style={[styles.colLabel, { fontSize: rs(10) }]}>Daily Progress</Text>
         <Text style={[styles.progressFraction, { fontSize: rs(12) }]}>
           {task.current} / {task.target}
@@ -74,7 +77,7 @@ export const SurahListItem: React.FC<SurahListItemProps> = ({ task, onPress, isA
         <Text style={[styles.colLabel, { fontSize: rs(10), textAlign: 'center' }]}>Status</Text>
         <CircularProgressRing
           progress={percent}
-          size={rs(40)}
+          size={rs(30)}
           completed={complete}
           strokeWidth={3}
         />
@@ -107,8 +110,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  numericIcon: {
+    resizeMode: 'cover',
+    opacity: 0.98,
+  },
   starLabel: {
     position: 'absolute',
+    margin: 0,
     fontFamily: TasbihTheme.fonts.sansSemiBold,
     color: TasbihTheme.colors.primaryGreen,
   },
@@ -118,6 +126,8 @@ const styles = StyleSheet.create({
   name: {
     fontFamily: TasbihTheme.fonts.sansBold,
     color: TasbihTheme.colors.textPrimary,
+    flexShrink: 1,
+    minWidth: 0,
   },
   meaning: {
     fontFamily: TasbihTheme.fonts.sans,

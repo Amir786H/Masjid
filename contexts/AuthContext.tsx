@@ -1,4 +1,5 @@
 import { Session, User } from '@supabase/supabase-js';
+import { router } from 'expo-router';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { syncPendingActions } from '../services/offlineService';
 import { getCurrentSession, supabase } from '../services/supabaseClient';
@@ -16,6 +17,19 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const isSessionValid = (session: Session | null): boolean => {
+  if (!session) {
+    return false;
+  }
+
+  if (!session.expires_at) {
+    return true;
+  }
+
+  const expiresAt = session.expires_at * 1000;
+  return expiresAt > Date.now() + 60_000;
+};
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
@@ -26,14 +40,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const initAuth = async () => {
       try {
-        const session = await getCurrentSession();
-        setSession(session);
-        if (session?.user) {
-          setUser(session.user);
+        const currentSession = await getCurrentSession();
+
+        if (currentSession && isSessionValid(currentSession)) {
+          const {
+            data: { user: currentUser },
+            error: userError,
+          } = await supabase.auth.getUser();
+
+          if (!userError && currentUser) {
+            setSession(currentSession);
+            setUser(currentUser);
+          } else {
+            await supabase.auth.signOut();
+            setSession(null);
+            setUser(null);
+          }
+        } else {
+          setSession(null);
+          setUser(null);
         }
       } catch (err) {
-        console.error('Auth initialization error:', err);
-        setError('Failed to initialize authentication');
+        console.warn('Auth initialization could not restore session:', err);
+        setSession(null);
+        setUser(null);
       } finally {
         setLoading(false);
       }
@@ -44,9 +74,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Listen for auth state changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setUser(session?.user || null);
+    } = supabase.auth.onAuthStateChange((event, nextSession) => {
+      if (event === 'SIGNED_OUT' || !nextSession || (nextSession && !isSessionValid(nextSession))) {
+        setSession(null);
+        setUser(null);
+        setLoading(false);
+        return;
+      }
+
+      setSession(nextSession);
+      setUser(nextSession?.user || null);
       setLoading(false);
     });
 
@@ -81,6 +118,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (signUpError) throw signUpError;
+
+      if (data.session) {
+        setSession(data.session);
+        setUser(data.user ?? null);
+      }
 
       // Create user profile in public.users table when the schema is available.
       // If the table is missing the full_name column or the schema cache is stale,
@@ -127,12 +169,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setLoading(true);
     try {
       setError(null);
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) throw error;
+
+      setSession(data.session);
+      setUser(data.user ?? null);
     } catch (err: any) {
       setError(err.message);
       throw err;
@@ -142,13 +187,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signOut = async () => {
+    setError(null);
+    setSession(null);
+    setUser(null);
     setLoading(true);
+    router.replace('/(auth)/splash');
+
     try {
-      setError(null);
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
-      setSession(null);
-      setUser(null);
     } catch (err: any) {
       setError(err.message);
       throw err;

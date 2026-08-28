@@ -3,6 +3,7 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, StyleSheet, Text, View } from 'react-native';
+import { useTabBarScroll } from '../../hooks/useTabBarVisibility';
 import { useAuthContext } from '../../contexts/AuthContext';
 import {
   fetchLikedPostIds,
@@ -60,6 +61,8 @@ export default function CommunityScreen() {
       </View>
     );
   };
+
+  const onScroll = useTabBarScroll();
 
   const updatePostLikeCount = (postId: string, likesCount: number) => {
     updateCommunityPostLikes(postId, likesCount);
@@ -134,6 +137,8 @@ export default function CommunityScreen() {
           );
         }}
         keyExtractor={(item) => item.id}
+        onScroll={onScroll}
+        scrollEventThrottle={16}
       />
     </View>
   );

@@ -1,9 +1,12 @@
 import Constants from 'expo-constants';
+import { CACHE_KEYS, cacheData, getCachedData } from './offlineService';
 import { supabase } from './supabaseClient';
 
 // ==================== MASJID OPERATIONS ====================
 
 export const fetchMasjids = async () => {
+  const cachedMasjids = await getCachedData<any[]>(CACHE_KEYS.masjids);
+
   try {
     const { data, error } = await supabase
       .from('masjids')
@@ -11,10 +14,13 @@ export const fetchMasjids = async () => {
       .order('name', { ascending: true });
 
     if (error) throw error;
-    return data;
+
+    const nextMasjids = data || [];
+    await cacheData(CACHE_KEYS.masjids, nextMasjids);
+    return nextMasjids;
   } catch (err) {
-    console.error('Error fetching masjids:', err);
-    throw err;
+    console.warn('Falling back to cached masjids after fetch error:', err);
+    return cachedMasjids || [];
   }
 };
 
@@ -363,6 +369,8 @@ export const fetchPostLikeCount = async (postId: string) => {
 };
 
 export const fetchCommunityPosts = async (limit: number = 10, offset: number = 0) => {
+  const cachedPosts = await getCachedData<any[]>(CACHE_KEYS.communityPosts);
+
   try {
     const { data, error } = await supabase
       .from('community_posts')
@@ -376,13 +384,16 @@ export const fetchCommunityPosts = async (limit: number = 10, offset: number = 0
     if (error) throw error;
 
     const likeCounts = await fetchPostLikeCounts((data || []).map((post) => post.id));
-    return (data || []).map((post) => ({
+    const nextPosts = (data || []).map((post) => ({
       ...post,
       likes_count: likeCounts[post.id] || 0,
     }));
+
+    await cacheData(CACHE_KEYS.communityPosts, nextPosts);
+    return nextPosts;
   } catch (err) {
-    console.error('Error fetching community posts:', err);
-    throw err;
+    console.warn('Falling back to cached community posts after fetch error:', err);
+    return cachedPosts || [];
   }
 };
 
@@ -688,20 +699,11 @@ export const fetchCustomPrayerTimesForMasjid = async (masjidId: string, day: str
       .select('*')
       .eq('masjid_id', masjidId)
       .eq('day', day)
-      .single();
+      .maybeSingle();
 
-    if (error) {
-      if (error.details?.includes('Results contain 0 rows')) {
-        return null;
-      }
-      throw error;
-    }
-
+    if (error) throw error;
     return data;
-  } catch (err: any) {
-    if (err?.message?.includes('Results contain 0 rows')) {
-      return null;
-    }
+  } catch (err) {
     console.error('Error fetching custom prayer times for masjid:', err);
     throw err;
   }
