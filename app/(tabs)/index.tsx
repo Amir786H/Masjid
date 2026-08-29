@@ -57,6 +57,7 @@ export default function HomeScreen() {
 
   // console.log('HomeScreen----', data?.meta?.latitude, data?.meta?.longitude);
 
+
   useEffect(() => {
     loadMasjids();
     loadCommunityPosts();
@@ -150,6 +151,10 @@ export default function HomeScreen() {
       </View>
       <TouchableOpacity style={styles.bellButton} onPress={() => i18n.changeLanguage('en')}>
         <Icons.Ionicons name="notifications" size={20} color={Colors.light.text} />
+        <Text style={styles.bellButtonText}
+        >
+          {communityPosts?.length > 0 ? communityPosts.length : 0}
+        </Text>
       </TouchableOpacity>
     </View>
   );
@@ -252,9 +257,9 @@ export default function HomeScreen() {
       <View style={styles.prayerTimesContainer}>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>{t('common.Prayer_Times')}</Text>
-          <TouchableOpacity>
+          {/* <TouchableOpacity>
             <Text style={styles.viewMonthlyBtn}>{t('common.View_Monthly')}</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
 
         <View style={styles.prayerGridRow}>
@@ -508,4 +513,15 @@ const styles = StyleSheet.create({
   errorText: {
     color: '#EF4444',
   },
+  bellButtonText: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    backgroundColor: Colors.light.primary,
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: '700',
+    paddingHorizontal: 4,
+    borderRadius: 8
+  }
 });

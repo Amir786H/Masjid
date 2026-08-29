@@ -9,7 +9,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 import { Colors } from '../constants/Colors';
 import {
@@ -19,7 +19,7 @@ import {
   HadithCollection,
 } from '../services/hadithService';
 
-const {width} = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 function safeExtractHadith(json: any) {
   if (!json) return null;
@@ -114,85 +114,87 @@ export default function Hadith() {
     const text = item?.text ?? item?.hadith ?? item?.body ?? item?.arab ?? item?.english ?? JSON.stringify(item);
     const ref = item?.reference ?? item?.book ?? item?.id ?? item?.grade;
     return (
-      <Animated.View style={[styles.card, {backgroundColor: theme.cardBackground, opacity}]}> 
+      <Animated.View style={[styles.card, { backgroundColor: theme.cardBackground, opacity }]}>
         <ScrollView>
-          <Text style={[styles.hadithText, {color: theme.text}]}>{text}</Text>
-          {ref ? <Text style={[styles.refText, {color: theme.textSecondary}]}> {ref}</Text> : null}
+          <Text style={[styles.hadithText, { color: theme.text }]}>{text}</Text>
+          {ref ? <Text style={[styles.refText, { color: theme.textSecondary }]}> {ref}</Text> : null}
         </ScrollView>
       </Animated.View>
     );
   }
 
   return (
-    <View style={[styles.container, {backgroundColor: theme.background}]}> 
-      <View style={styles.headerRow}>
-        <Text style={[styles.title, {color: theme.text}]}>Hadith</Text>
-        <TouchableOpacity onPress={loadRandom} style={[styles.randomBtn, {backgroundColor: theme.primary}]}> 
-          <Text style={styles.randomBtnText}>Random</Text>
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.section}>
-        {loading ? (
-          <ActivityIndicator />
-        ) : randomHadith ? (
-          renderHadithCard(randomHadith)
-        ) : (
-          <Text style={{color: theme.textSecondary}}>No hadith loaded</Text>
-        )}
-      </View>
-
-      <View style={styles.section}>
-        <Text style={[styles.subtitle, {color: theme.text}]}>Collections</Text>
-        <FlatList
-          data={collections}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          keyExtractor={(item) => item.key}
-          renderItem={({item}) => (
-            <TouchableOpacity
-              onPress={() => {
-                setSelectedCollection(item.key);
-                setPage(1);
-              }}
-              style={[
-                styles.collectionBtn,
-                {backgroundColor: item.key === selectedCollection ? theme.lightGreen : theme.cardBackground, borderColor: theme.border},
-              ]}
-            >
-              <Text style={{color: item.key === selectedCollection ? theme.text : theme.textSecondary}}>{item.name}</Text>
-            </TouchableOpacity>
-          )}
-        />
-
-        <View style={{height: 12}} />
-
-        <View style={styles.paginationRow}>
-          <TouchableOpacity disabled={page <= 1 || pageLoading} onPress={() => setPage((p) => Math.max(1, p - 1))} style={[styles.pageBtn, {borderColor: theme.border}]}> 
-            <Text style={{color: theme.text}}>Previous</Text>
-          </TouchableOpacity>
-
-          <Text style={{color: theme.textSecondary}}>Page {page}</Text>
-
-          <TouchableOpacity disabled={pageLoading} onPress={() => setPage((p) => p + 1)} style={[styles.pageBtn, {borderColor: theme.border}]}> 
-            <Text style={{color: theme.text}}>Next</Text>
+    <ScrollView style={{ flex: 1, backgroundColor: theme.background }}>
+      <View style={[styles.container, { backgroundColor: theme.background }]}>
+        <View style={styles.headerRow}>
+          <Text style={[styles.title, { color: theme.text }]}>Hadith</Text>
+          <TouchableOpacity onPress={loadRandom} style={[styles.randomBtn, { backgroundColor: theme.primary }]}>
+            <Text style={styles.randomBtnText}>Random</Text>
           </TouchableOpacity>
         </View>
 
-        <View style={{height: 12}} />
+        <View style={styles.section}>
+          {loading ? (
+            <ActivityIndicator />
+          ) : randomHadith ? (
+            renderHadithCard(randomHadith)
+          ) : (
+            <Text style={{ color: theme.textSecondary }}>No hadith loaded</Text>
+          )}
+        </View>
 
-        {pageLoading ? (
-          <ActivityIndicator />
-        ) : (
+        <View style={styles.section}>
+          <Text style={[styles.subtitle, { color: theme.text }]}>Collections</Text>
           <FlatList
-            data={collectionHadiths}
-            keyExtractor={(it, idx) => String(it?.id ?? idx)}
-            renderItem={({item}) => renderHadithCard(item)}
-            ItemSeparatorComponent={() => <View style={{height: 12}} />}
+            data={collections}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            keyExtractor={(item) => item.key}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                onPress={() => {
+                  setSelectedCollection(item.key);
+                  setPage(1);
+                }}
+                style={[
+                  styles.collectionBtn,
+                  { backgroundColor: item.key === selectedCollection ? theme.lightGreen : theme.cardBackground, borderColor: theme.border },
+                ]}
+              >
+                <Text style={{ color: item.key === selectedCollection ? theme.text : theme.textSecondary }}>{item.name}</Text>
+              </TouchableOpacity>
+            )}
           />
-        )}
+
+          <View style={{ height: 12 }} />
+
+          <View style={styles.paginationRow}>
+            <TouchableOpacity disabled={page <= 1 || pageLoading} onPress={() => setPage((p) => Math.max(1, p - 1))} style={[styles.pageBtn, { borderColor: theme.border }]}>
+              <Text style={{ color: theme.text }}>Previous</Text>
+            </TouchableOpacity>
+
+            <Text style={{ color: theme.textSecondary }}>Page {page}</Text>
+
+            <TouchableOpacity disabled={pageLoading} onPress={() => setPage((p) => p + 1)} style={[styles.pageBtn, { borderColor: theme.border }]}>
+              <Text style={{ color: theme.text }}>Next</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={{ height: 12 }} />
+
+          {pageLoading ? (
+            <ActivityIndicator />
+          ) : (
+            <FlatList
+              data={collectionHadiths}
+              keyExtractor={(it, idx) => String(it?.id ?? idx)}
+              renderItem={({ item }) => renderHadithCard(item)}
+              ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+            />
+          )}
+        </View>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
