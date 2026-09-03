@@ -149,7 +149,7 @@ export default function HomeScreen() {
         <View style={{ padding: 5 }} />
         <Text numberOfLines={2} style={styles.location}>{masjids[0]?.address || address}</Text>
       </View>
-      <TouchableOpacity style={styles.bellButton} onPress={() => i18n.changeLanguage('en')}>
+      <TouchableOpacity style={styles.bellButton} onPress={() => {}}>
         <Icons.Ionicons name="notifications" size={20} color={Colors.light.text} />
         <Text style={styles.bellButtonText}
         >
@@ -183,6 +183,13 @@ export default function HomeScreen() {
             <Text style={styles.drawerItemText}>Admin Dashboard</Text>
           </TouchableOpacity>
         ) : null}
+        <TouchableOpacity
+          style={styles.drawerItem}
+          onPress={() => i18n.changeLanguage('ur')}
+        >
+          <Icons.MaterialIcons name="settings" size={20} color={Colors.light.primary} />
+          <Text style={styles.drawerItemText}>Change Language</Text>
+        </TouchableOpacity>
       </Animated.View>
     </>
   );

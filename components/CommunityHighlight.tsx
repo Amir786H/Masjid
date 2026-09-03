@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next'; // Import the useTranslation hook
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Colors } from '../constants/Colors';
 
@@ -17,6 +18,7 @@ export const CommunityHighlight: React.FC<CommunityHighlightProps> = ({
     description,
     onPress,
 }) => {
+    const { t } = useTranslation(); // Initialize the useTranslation hook
     return (
         <View style={styles.container}>
             <Image source={{ uri: imageUrl }} style={styles.image} resizeMode="cover" />
@@ -33,7 +35,7 @@ export const CommunityHighlight: React.FC<CommunityHighlightProps> = ({
                 <Text style={styles.description} numberOfLines={2}>{description}</Text>
 
                 <TouchableOpacity style={styles.button} onPress={onPress} activeOpacity={0.8}>
-                    <Text style={styles.buttonText}>Learn More & Register</Text>
+                    <Text style={styles.buttonText}>{t('home.Learn_More_Register')}</Text>
                 </TouchableOpacity>
             </View>
         </View>
